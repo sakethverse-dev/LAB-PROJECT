@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: shopkart
+    runtime: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        value: mongodb+srv://saketh25bcs10615_db_user:Y33rtWG8XB8F9HUQ@cluster0.8tau8mt.mongodb.net/shopkart?retryWrites=true&w=majority
+      - key: JWT_SECRET
+        value: shopkart_super_secret_jwt_key_2029_lab
+      - key: RAZORPAY_KEY_ID
+        value: rzp_test_Tn4XNkWs5wujGK
+      - key: RAZORPAY_KEY_SECRET
+        value: rthgFNiWCdXtXs23npQVcKOR
+      - key: CLIENT_URL
+        value: https://shopkart.onrender.com
