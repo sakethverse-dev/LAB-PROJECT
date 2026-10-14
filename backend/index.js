@@ -5,6 +5,7 @@ import cors from "cors";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import mongoose from "mongoose";
 import { connectDB } from "./config/db.js";
 import { seedCatalog } from "./seedProducts.js";
 
@@ -47,6 +48,7 @@ const corsOptions = {
     if (
       !origin ||
       allowedOrigins.includes(normalizedOrigin) ||
+      normalizedOrigin.endsWith(".vercel.app") ||
       process.env.NODE_ENV !== "production"
     ) {
       callback(null, true);
@@ -86,6 +88,18 @@ app.use(cookieParser());
 // Request logger for easy debugging
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+// Middleware to ensure DB connection for serverless environments (e.g., Vercel)
+app.use(async (req, res, next) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      await connectDB();
+    }
+  } catch (err) {
+    console.error("Database connection error in middleware:", err);
+  }
   next();
 });
 
@@ -174,7 +188,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Connect to Database and start server
+// Connect to Database and start server locally
 const startServer = async () => {
   await connectDB();
   await seedCatalog();
@@ -188,4 +202,9 @@ const startServer = async () => {
   });
 };
 
-startServer();
+// Start local server when running standalone; on Vercel the app export is invoked as a serverless function
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;

@@ -1,14 +1,13 @@
 import axios from 'axios';
 
-// Calculate dynamic backend base URL matching current host/IP
+// Calculate dynamic backend base URL.
+// When deployed on Vercel with multi-service routing or local Vite proxy, '/api' routes directly to backend.
 const getApiBaseUrl = () => {
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+    const base = import.meta.env.VITE_API_URL.replace(/\/$/, '');
+    return base.endsWith('/api') ? base : `${base}/api`;
   }
-  if (typeof window !== 'undefined' && window.location.hostname) {
-    return `${window.location.protocol}//${window.location.hostname}:5000`;
-  }
-  return 'http://localhost:5000';
+  return '/api';
 };
 
 // Base API instance configured with credentials to send & receive HttpOnly cookies
